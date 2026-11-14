@@ -7,8 +7,6 @@ A mobile-first consultancy app for **Ascenda Aurelia**, offering two services:
 - 🥗 **Nutrition & Diet Consultancy** with Dr. Uzma Shaheen (Nutritionist & Dietician)
 - 💰 **Personal Budgeting & Financial Consultancy** with Ms. Arfaa Khan (Financial Analyst & Advisor)
 
-**Live demo:** https://claude.ai/artifact/YJJoLKkDc632aAp8K9BvmB
-
 ## Features
 
 - Login and sign up
@@ -20,31 +18,10 @@ A mobile-first consultancy app for **Ascenda Aurelia**, offering two services:
 
 ## Tech
 
-A single self-contained `index.html` (HTML, CSS and JavaScript). No build step. Data is saved in the browser's localStorage.
+A single self-contained `index.html` (HTML, CSS and JavaScript). 
 
 ## Run it
 
 Open `index.html` in any browser, or host it free on GitHub Pages or Netlify.
 
-## Customise
 
-Edit the top of the `<script>` section in `index.html`:
-
-- `CUR`, `GOLD`, `FREE_MSGS` for currency, Gold price and free messages
-- `EX` for expert names, prices and service text
-- `UPI` for the UPI ID
-
-## Limitations
-
-- Payments are not verified automatically. Check each UTR in your bank statement.
-- Accounts and chats are stored on the device only.
-- Expert replies are automatic placeholders. Live chat and payment verification need a backend.
-
-## Roadmap
-
-- Flutter version for Google Play (APK/AAB)
-- Backend with real login, live chat and a payment gateway (Razorpay)
-
-## License
-
-© Ascenda Aurelia. All rights reserved.
