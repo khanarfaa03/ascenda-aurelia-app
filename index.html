@@ -77,7 +77,9 @@ function auth(){
 }
 function home(){
  const u=U();
- return `<div class="wrap"><img class="banner" src="${IMG_WIDE}" alt="Ascenda Aurelia, Rise to Gold">
+ return `<div class="wrap">
+ <img class="logo" src="${IMG_SQ}" alt="Ascenda Aurelia logo">
+ <img class="banner" src="${IMG_WIDE}" alt="Ascenda Aurelia, Rise to Gold">
  <h1>Welcome, ${esc(u.name.split(" ")[0])}</h1>
  <p class="mut" style="margin:6px 0 16px">Two golden assets: your health and your money. We guide both.</p>
  ${Object.keys(EX).map(k=>{const e=EX[k];return `<div class="card"><div class="row"><h3>${e.ic} ${e.svc}</h3></div>
@@ -91,14 +93,18 @@ function home(){
 }
 function goldTab(){
  const u=U(),on=goldOn();
- return `<div class="wrap"><img class="logo" style="width:100px;height:100px" src="${IMG_SQ}" alt="Ascenda Aurelia logo">
+ return `<div class="wrap">
+ <img class="logo" src="${IMG_SQ}" alt="Ascenda Aurelia logo">
+ <div class="card gold c">
  <h1>Aurelia Gold</h1><div class="price">${CUR} ${GOLD}</div><p class="mut">for 30 days</p>
  <ul style="text-align:left"><li>Free consultation with Dr. Uzma Shaheen (nutrition)</li><li>Free consultation with Ms. Arfaa Khan (finance)</li><li>Both services, one month, one price</li></ul>
  ${on?`<p class="tag" style="display:inline-block;margin-top:8px">Active until ${new Date(u.gold).toLocaleDateString()}</p>`:`<button class="btn" data-a="buy">Buy subscription ${CUR} ${GOLD}</button>`}</div></div>`;
 }
 function acct(){
  const u=U();
- return `<div class="wrap"><h2>My account</h2><div class="card"><b>${esc(u.name)}</b><br><span class="mut">${esc(me)}</span>
+ return `<div class="wrap">
+ <img class="logo" src="${IMG_SQ}" alt="Ascenda Aurelia logo">
+ <h2>My account</h2><div class="card"><b>${esc(u.name)}</b><br><span class="mut">${esc(me)}</span>
  <p style="margin-top:10px">Aurelia Gold: ${goldOn()?"Active until "+new Date(u.gold).toLocaleDateString():"Not subscribed"}</p></div>
  <button class="btn ghost" data-a="out">Log out</button></div>`;
 }
@@ -116,10 +122,15 @@ function payModal(){
 }
 function render(){
  const a=document.getElementById("app");
- if(!me||!users[me]){a.innerHTML=auth();return}
+ if(!me||!users[me]){
+   a.innerHTML=auth();
+   if(window.tidioChatApi && window.tidioChatApi.hide) { window.tidioChatApi.hide(); }
+   return;
+ }
  const v={home,gold:goldTab,acct}[tab]();
  const T=[["home","Home"],["chat","Chat"],["gold","Gold"],["acct","Account"]];
  a.innerHTML=v+`<nav>${T.map(t=>`<button data-a="tab" data-v="${t[0]}" class="${tab===t[0]?"on":""}">${t[1]}</button>`).join("")}</nav>`+payModal();
+ if(window.tidioChatApi && window.tidioChatApi.show) { window.tidioChatApi.show(); }
 }
 document.addEventListener("click",ev=>{
  const el=ev.target.closest("[data-a]");if(!el)return;ev.preventDefault();
