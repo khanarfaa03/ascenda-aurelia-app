@@ -64,9 +64,13 @@ const save=()=>{sv("aa_users",users);sv("aa_me",me)};
 const goldOn=()=>U().gold>Date.now();
 const C=k=>{const u=U();u.c=u.c||{};return u.c[k]=u.c[k]||{used:0,done:false,paid:false}};
 
+function logoHtml(size=130){
+ return `<img class="logo" style="width:${size}px;height:${size}px" src="${IMG_SQ}" onerror="this.onerror=null;this.src='icon-192.png'" alt="Ascenda Aurelia logo">`;
+}
+
 function auth(){
  const su=mode==="signup";
- return `<div class="wrap"><img class="logo" src="${IMG_SQ}" alt="Ascenda Aurelia logo">
+ return `<div class="wrap">${logoHtml(130)}
  <h1 class="c">Rise to gold</h1><p class="mut c" style="margin:6px 0 16px">Health is Wealth. Wealth is Health.</p>
  <div class="card"><div class="sw"><button data-a="mode" data-v="login" class="${su?"":"on"}">Log in</button><button data-a="mode" data-v="signup" class="${su?"on":""}">Sign up</button></div>
  ${su?'<input id="nm" placeholder="Full name" autocomplete="name">':""}
@@ -78,7 +82,7 @@ function auth(){
 function home(){
  const u=U();
  return `<div class="wrap">
- <img class="logo" src="${IMG_SQ}" alt="Ascenda Aurelia logo">
+ ${logoHtml(110)}
  <img class="banner" src="${IMG_WIDE}" alt="Ascenda Aurelia, Rise to Gold">
  <h1>Welcome, ${esc(u.name.split(" ")[0])}</h1>
  <p class="mut" style="margin:6px 0 16px">Two golden assets: your health and your money. We guide both.</p>
@@ -94,7 +98,7 @@ function home(){
 function goldTab(){
  const u=U(),on=goldOn();
  return `<div class="wrap">
- <img class="logo" src="${IMG_SQ}" alt="Ascenda Aurelia logo">
+ ${logoHtml(110)}
  <div class="card gold c">
  <h1>Aurelia Gold</h1><div class="price">${CUR} ${GOLD}</div><p class="mut">for 30 days</p>
  <ul style="text-align:left"><li>Free consultation with Dr. Uzma Shaheen (nutrition)</li><li>Free consultation with Ms. Arfaa Khan (finance)</li><li>Both services, one month, one price</li></ul>
@@ -103,7 +107,7 @@ function goldTab(){
 function acct(){
  const u=U();
  return `<div class="wrap">
- <img class="logo" src="${IMG_SQ}" alt="Ascenda Aurelia logo">
+ ${logoHtml(110)}
  <h2>My account</h2><div class="card"><b>${esc(u.name)}</b><br><span class="mut">${esc(me)}</span>
  <p style="margin-top:10px">Aurelia Gold: ${goldOn()?"Active until "+new Date(u.gold).toLocaleDateString():"Not subscribed"}</p></div>
  <button class="btn ghost" data-a="out">Log out</button></div>`;
@@ -192,6 +196,10 @@ document.addEventListener("click",ev=>{
   pay=null;save();render();
  }
  else if(a==="out"){me=null;mode="login";save();render()}
+});
+document.addEventListener("tidioChat-ready",function(){
+ if(!me||!users[me]){window.tidioChatApi.hide()}
+ else{window.tidioChatApi.show()}
 });
 render();
 </script>
