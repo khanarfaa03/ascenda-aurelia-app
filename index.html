@@ -124,4 +124,95 @@ function home(){
 function chats(){
  if(!chat){return `<div class="wrap"><h2>Chat with an expert</h2>${Object.keys(EX).map(k=>{const e=EX[k],c=C(k);
  const st=goldOn()?"Free with Gold":c.paid?"Paid session":c.done?`${CUR} ${e.p} to continue`:"First chat free";
- return `<div class="card"><div class="row"><div><b>${e.n}</b><br><span class="mut">${e
+ return `<div class="card"><div class="row"><div><b>${e.n}</b><br><span class="mut">${e.r}</span></div><span class="tag">${st}</span></div>
+ <button class="btn" data-a="open" data-v="${k}">${c.m.length?"Open chat":"Start chat"}</button></div>`}).join("")}</div>`}
+ const e=EX[chat],c=C(chat),ok=can(chat);
+ return `<div class="wrap"><div class="row"><h2>${e.n}</h2><button class="tag" style="background:none;cursor:pointer" data-a="back">Back</button></div>
+ <p class="mut" style="margin-bottom:8px">${e.r}</p>
+ <div class="msgs" id="ms"><div class="b e">${e.hi}</div>${c.m.map(m=>`<div class="b ${m.f}">${esc(m.t)}</div>`).join("")}</div>
+ ${ok?`<div class="send"><input id="mi" placeholder="Type your message" aria-label="Message"><button class="btn" data-a="send">Send</button></div>
+ <p class="mut" style="margin-top:8px;font-size:13px">${goldOn()?"Free consultation with Aurelia Gold.":c.paid?`Paid consultation active. <a href="#" data-a="end" style="color:var(--gold2)">End consultation</a>`:`Free chat: ${FREE_MSGS-c.used} messages left.`}</p>`
+ :`<div class="card gold c"><h3>Your free chat has ended</h3><p class="mut" style="margin-top:4px">Continue with ${e.n} for ${CUR} ${e.p}, or get a free month of consultations with Aurelia Gold.</p>
+ <button class="btn" data-a="pay">Pay ${CUR} ${e.p} and continue</button><button class="btn ghost" data-a="tab" data-v="gold">Get Aurelia Gold ${CUR} ${GOLD}</button></div>`}</div>`;
+}
+function goldTab(){
+ const u=U(),on=goldOn();
+ return `<div class="wrap"><div class="card gold c"><img class="logo" style="width:96px" src="${IMG_SQ}" alt="">
+ <h1>Aurelia Gold</h1><div class="price">${CUR} ${GOLD}</div><p class="mut">for 30 days</p>
+ <ul style="text-align:left"><li>Free consultation with Dr. Uzma Shaheen (nutrition)</li><li>Free consultation with Ms. Arfaa Khan (finance)</li><li>Both services, one month, one price</li></ul>
+ ${on?`<p class="tag" style="display:inline-block;margin-top:8px">Active until ${new Date(u.gold).toLocaleDateString()}</p>`:`<button class="btn" data-a="buy">Buy subscription ${CUR} ${GOLD}</button>`}</div></div>`;
+}
+function acct(){
+ const u=U();
+ return `<div class="wrap"><h2>My account</h2><div class="card"><b>${esc(u.name)}</b><br><span class="mut">${esc(me)}</span>
+ <p style="margin-top:10px">Aurelia Gold: ${goldOn()?"Active until "+new Date(u.gold).toLocaleDateString():"Not subscribed"}</p></div>
+ <button class="btn ghost" data-a="out">Log out</button></div>`;
+}
+const UPI="9717992487@axl";
+function payModal(){
+ if(!pay)return"";
+ return `<div class="ov"><div class="sheet c" role="dialog" aria-label="Pay with UPI"><h2>Pay ${CUR} ${pay.amt}</h2><p class="mut">${pay.label}</p>
+ <img class="qr" src="${IMG_QR}" alt="UPI QR code for Ascenda Aurelia">
+ <p>UPI ID: <b>${UPI}</b> <a href="#" data-a="copy" style="color:var(--gold2)">Copy</a></p>
+ <a class="btn ghost" href="upi://pay?pa=${UPI}&pn=Ascenda%20Aurelia&am=${pay.amt}&cu=INR&tn=${encodeURIComponent(pay.label)}">Open UPI app</a>
+ <p class="mut" style="margin-top:12px;font-size:13px">Scan the QR with any UPI app, pay ${CUR} ${pay.amt}, then enter the 12-digit transaction ID (UTR).</p>
+ <input id="utr" inputmode="numeric" placeholder="12-digit transaction ID (UTR)" maxlength="12" aria-label="Transaction ID">
+ <div class="err" id="pe" role="alert"></div>
+ <button class="btn" data-a="paid">I have paid ${CUR} ${pay.amt}</button><button class="btn ghost" data-a="x2">Cancel</button></div></div>`;
+}
+function render(){
+ const a=document.getElementById("app");
+ if(!me||!users[me]){a.innerHTML=auth();return}
+ const v={home,chat:chats,gold:goldTab,acct}[tab]();
+ const T=[["home","Home"],["chat","Chat"],["gold","Gold"],["acct","Account"]];
+ a.innerHTML=v+`<nav>${T.map(t=>`<button data-a="tab" data-v="${t[0]}" class="${tab===t[0]?"on":""}">${t[1]}</button>`).join("")}</nav>`+payModal();
+ const m=document.getElementById("ms");if(m)m.scrollTop=m.scrollHeight;
+}
+function send(){
+ const i=document.getElementById("mi"),t=i.value.trim();if(!t)return;
+ const c=C(chat),k=chat;c.m.push({f:"u",t});
+ if(!goldOn()&&!c.paid){c.used++;if(c.used>=FREE_MSGS)c.done=true}
+ save();
+ setTimeout(()=>{c.m.push({f:"e",t:`Thank you. ${EX[k].n} has received your message and will reply shortly.`});save();if(chat===k)render()},800);
+ render();
+}
+document.addEventListener("click",ev=>{
+ const el=ev.target.closest("[data-a]");if(!el)return;ev.preventDefault();
+ const a=el.dataset.a,v=el.dataset.v;
+ if(a==="mode"){mode=v;err="";render()}
+ else if(a==="auth"){
+  const em=document.getElementById("em").value.trim().toLowerCase(),pw=document.getElementById("pw").value;
+  if(!/^\S+@\S+\.\S+$/.test(em)){err="Enter a valid email address.";return render()}
+  if(pw.length<6){err="Password must be at least 6 characters.";return render()}
+  if(mode==="signup"){
+   const nm=document.getElementById("nm").value.trim();
+   if(!nm){err="Enter your full name.";return render()}
+   if(users[em]){err="This email already has an account. Log in instead.";return render()}
+   users[em]={name:nm,pw:btoa(pw),gold:0,c:{}};
+  }else if(!users[em]||users[em].pw!==btoa(pw)){err="Email or password is incorrect.";return render()}
+  me=em;err="";tab="home";save();render();
+ }
+ else if(a==="tab"){tab=v;if(v!=="chat")chat=null;render();scrollTo(0,0); if(v==="chat"){ whenTidioReady(api=>{ api.show(); api.open(); }); }}
+ else if(a==="open"){ startTidioChat(v); }
+ else if(a==="back"){chat=null;render()}
+ else if(a==="send")send();
+ else if(a==="pay"){pay={kind:"chat",k:chat,amt:EX[chat].p,label:EX[chat].svc+" consultation"};render()}
+ else if(a==="copy"){try{navigator.clipboard.writeText(UPI)}catch(e){}el.textContent="Copied"}
+ else if(a==="x2"){pay=null;render()}
+ else if(a==="paid"){
+  const utr=document.getElementById("utr").value.trim();
+  if(!/^\d{12}$/.test(utr)){document.getElementById("pe").textContent="Enter the 12-digit transaction ID from your UPI app.";return}
+  const u=U();u.pays=u.pays||[];u.pays.push({utr,amt:pay.amt,what:pay.label,t:Date.now()});
+  if(pay.kind==="gold")u.gold=Date.now()+30*864e5;else C(pay.k).paid=true;
+  pay=null;save();render();
+ }
+ else if(a==="end"){C(chat).paid=false;C(chat).done=true;save();render()}
+ else if(a==="buy"){pay={kind:"gold",amt:GOLD,label:"Aurelia Gold, 30 days"};render()}
+ else if(a==="out"){me=null;chat=null;mode="login";save();render()}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="mi")send()});
+render();
+</script>
+<script>window.onTidioChatApiReady = onTidioReady;</script>
+<script src="//code.tidio.co/7ip5dcwpsepzbgujgzqvzj6mkwhkrsvt.js" async></script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})</script></body></html>
