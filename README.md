@@ -20,8 +20,5 @@ A mobile-first consultancy app for **Ascenda Aurelia**, offering two services:
 
 A single self-contained `index.html` (HTML, CSS and JavaScript). 
 
-## Run it
-
-Open `index.html` in any browser, or host it free on GitHub Pages or Netlify.
 
 
